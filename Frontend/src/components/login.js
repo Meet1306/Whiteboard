@@ -13,18 +13,29 @@ const Login = () => {
     setError("");
 
     try {
+      console.log("Attempting login...");
+
       const response = await fetch("http://localhost:5000/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Login failed");
+      console.log("Response Status:", response.status);
 
-      setAuthToken(data.token); // Save JWT token in local storage
-      navigate("/canvases"); // ✅ Redirect to Canvas List instead of login
+      const data = await response.json();
+      console.log("Response Data:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      setAuthToken(data.token); // ✅ Save JWT token in localStorage
+      console.log("Token saved:", localStorage.getItem("token"));
+
+      navigate("/canvases"); // ✅ Redirect after token is stored
     } catch (err) {
+      console.error("Login Error:", err.message);
       setError(err.message);
     }
   };

@@ -124,7 +124,7 @@ const CanvasList = () => {
           {canvases.map((canvas) => (
             <div
               key={canvas._id}
-              className="bg-white p-6 rounded-lg shadow-lg flex flex-col justify-between min-h-[180px]"
+              className="bg-white p-6 rounded-lg shadow-lg flex flex-col justify-between min-h-[200px]"
             >
               <div>
                 <h3 className="text-2xl font-semibold text-gray-800">
@@ -133,6 +133,12 @@ const CanvasList = () => {
                 <p className="text-gray-500 text-sm mt-2">
                   Created At: {new Date(canvas.createdAt).toLocaleString()}
                 </p>
+                {/* Display Owner Name */}
+                {canvas.owner && canvas.owner.name && (
+                  <p className="text-gray-700 font-medium mt-1">
+                    Owner: {canvas.owner.name}
+                  </p>
+                )}
               </div>
               <div className="flex justify-end mt-4">
                 <button

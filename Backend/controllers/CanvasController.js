@@ -6,7 +6,7 @@ const getAllCanvas = async (req, res) => {
     //req.user is already added by the authmiddleware
     const allCanvas = await canvas.getAllCanvas(req.user.email);
 
-    res.status(200).send(allCanvas);
+    res.status(200).json(allCanvas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

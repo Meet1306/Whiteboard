@@ -40,7 +40,8 @@ canvasSchema.statics.getAllCanvas = async function (email) {
 
     const allCanvas = await this.find({
       $or: [{ owner: userId }, { sharedWith: userId }],
-    });
+    }) // Fetch only user's canvases
+      .populate("owner", "name email");
     // console.log(allCanvas);
 
     return allCanvas;
