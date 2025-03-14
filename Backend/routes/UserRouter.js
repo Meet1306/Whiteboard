@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/UserModel");
 const authMiddleware = require("../Middlewares/Auth");
 
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 userRouter.post("/register", async (req, res) => {

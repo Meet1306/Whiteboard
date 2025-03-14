@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const userRouter = require("./routes/userRouter");
+const userRouter = require("./routes/UserRouter");
+const canvasRouter = require("./routes/CanvasRouter");
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -25,7 +26,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", userRouter);
+app.use("/api/user", userRouter);
+app.use("/api/canvas", canvasRouter);
 
 app.listen(port, () => {
   console.log(`Server runnung on port http://localhost:${port}`);

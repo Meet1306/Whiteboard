@@ -1,6 +1,7 @@
 const User = require("../models/UserModel");
 const jwt = require("jsonwebtoken");
 
+//will take token from the header
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -12,12 +13,13 @@ const authMiddleware = async (req, res, next) => {
 
     const data = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(data.id);
+    const user = await User.findOne({ email: data.email });
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
 
     req.user = user;
+
     next();
   } catch (err) {
     res.status(401).json({ error: "Invalid or expired token" });
