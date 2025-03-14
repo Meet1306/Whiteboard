@@ -4,13 +4,9 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./components/login";
-import CanvasList from "./components/CanvasList";
-import Board from "./components/Board";
-import Toolbar from "./components/Toolbar";
-import Toolbox from "./components/Toolbox";
-import BoardProvider from "./store/BoardProvider";
-import ToolboxProvider from "./store/ToolboxProvider";
+import Login from "./pages/login";
+import CanvasList from "./pages/CanvasList";
+import CanvasPage from "./pages/CanvasPage";
 import { getAuthToken } from "./utils/auth";
 
 const ProtectedRoute = ({ children }) => {
@@ -22,6 +18,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+
         <Route
           path="/canvases"
           element={
@@ -30,20 +27,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/canvas/:id"
+          path="/canvas/:canvasId"
           element={
             <ProtectedRoute>
-              <BoardProvider>
-                <ToolboxProvider>
-                  <Toolbar />
-                  <Board />
-                  <Toolbox />
-                </ToolboxProvider>
-              </BoardProvider>
+              <CanvasPage />
             </ProtectedRoute>
           }
         />
+
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

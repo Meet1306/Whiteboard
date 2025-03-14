@@ -40,7 +40,8 @@ canvasSchema.statics.getAllCanvas = async function (email) {
 
     const allCanvas = await this.find({
       $or: [{ owner: userId }, { sharedWith: userId }],
-    }) // Fetch only user's canvases
+    })
+      .select("name owner sharedWith createdAt updatedAt")
       .populate("owner", "name email");
     // console.log(allCanvas);
 
@@ -83,6 +84,27 @@ canvasSchema.statics.deleteCanvas = async function (email, canvasId) {
       throw new Error("You are not the owner of this canvas");
     }
     await this.findByIdAndDelete(canvasId);
+  } catch (err) {
+    throw err;
+  }
+};
+
+// only the one which is clicked will be loaded so sending canvasId in params
+canvasSchema.statics.loadCanvas = async function (email, canvasId) {
+  try {
+    const user = await User.findOne({ email }).select("_id");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const userId = user._id;
+    const canvasDoc = await this.findOne({
+      _id: canvasId,
+      $or: [{ owner: userId }, { sharedWith: userId }],
+    });
+    if (!canvasDoc) {
+      throw new Error("Canvas not found");
+    }
+    return canvasDoc;
   } catch (err) {
     throw err;
   }

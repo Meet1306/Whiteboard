@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/UserModel");
 const authMiddleware = require("../Middlewares/Auth");
 
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
 userRouter.post("/register", async (req, res) => {
@@ -34,15 +33,6 @@ userRouter.post("/login", async (req, res) => {
     res.send({ user, token });
   } catch (err) {
     res.status(400).json({ error: err.message }); // Send only error message
-  }
-});
-
-//frontend should call this route with proper token in the header to get the user profile
-userRouter.get("/profile", authMiddleware, async (req, res) => {
-  try {
-    res.send(req.user);
-  } catch (err) {
-    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
