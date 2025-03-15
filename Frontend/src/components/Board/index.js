@@ -48,38 +48,59 @@ function Board() {
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
+    context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
 
     const roughCanvas = rough.canvas(canvas);
-    console.log(elements);
-
-    elements.forEach((element) => {
+    elements.forEach((element, idx) => {
       switch (element.type) {
         case TOOL_ITEMS.LINE:
         case TOOL_ITEMS.RECTANGLE:
         case TOOL_ITEMS.CIRCLE:
         case TOOL_ITEMS.ARROW:
-          roughCanvas.draw(element.roughEle);
+          if (element.roughEle) {
+            roughCanvas.draw(element.roughEle);
+          } else {
+            console.warn(
+              `Missing roughEle for element at index ${idx}`,
+              element
+            );
+          }
           break;
         case TOOL_ITEMS.BRUSH:
-          context.fillStyle = element.stroke;
-          context.fill(element.path);
-          const brushPath = element.path
-            ? element.path
-            : new Path2D(getSvgPathFromStroke(getStroke(element.points)));
-          context.fill(brushPath);
-          context.restore();
+          if (element.points && element.points.length > 0) {
+            const brushPath = new Path2D(
+              getSvgPathFromStroke(getStroke(element.points))
+            );
+            context.fillStyle = element.stroke || "#000";
+            context.fill(brushPath);
+          } else {
+            console.warn(
+              "Missing points for brush element at index",
+              idx,
+              element
+            );
+          }
           break;
         case TOOL_ITEMS.TEXT:
+          const textToRender = element.text || "";
           context.textBaseline = "top";
-          context.font = `${element.size}px Caveat`;
-          context.fillStyle = element.stroke;
-          context.fillText(element.text, element.x1, element.y1);
-          context.restore();
+          context.font = `${element.size || 16}px Caveat`;
+          context.fillStyle = element.stroke || "#000";
+          context.fillText(textToRender, element.x1 || 0, element.y1 || 0);
           break;
         default:
-          throw new Error("Type not recognized");
+          console.error("Type not recognized at index", idx, element);
       }
+    });
+
+    context.restore();
+
+    // Double requestAnimationFrame to force a redraw
+    requestAnimationFrame(() => {
+      canvas.style.display = "none";
+      void canvas.offsetHeight;
+      canvas.style.display = "";
     });
 
     return () => {

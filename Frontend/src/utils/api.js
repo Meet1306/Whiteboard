@@ -7,7 +7,6 @@ export const updateCanvas = async (canvasId, elements) => {
   if (!token) {
     return Promise.reject(new Error("Not authenticated"));
   }
-//   console.log(elements);
 
   try {
     const response = await fetch(`${API_BASE_URL}/${canvasId}`, {

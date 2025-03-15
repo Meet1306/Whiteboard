@@ -41,7 +41,7 @@ const CanvasPage = () => {
           throw new Error(data.error || "Failed to load canvas");
         }
 
-        setCanvas(data);
+        setCanvas({ ...data });
       } catch (err) {
         setError(err.message || "An error occurred while loading the canvas");
         console.error("Fetch canvas error:", err);
