@@ -5,6 +5,8 @@ import { TOOL_ACTION_TYPES, TOOL_ITEMS } from "../../constants";
 import toolboxContext from "../../store/toolbox-context";
 import { updateCanvas } from "../../utils/api";
 import classes from "./index.module.css";
+import { getSvgPathFromStroke } from "../../utils/element";
+import getStroke from "perfect-freehand";
 
 function Board() {
   const canvasRef = useRef();
@@ -49,6 +51,8 @@ function Board() {
     context.save();
 
     const roughCanvas = rough.canvas(canvas);
+    console.log(elements);
+    // 
 
     elements.forEach((element) => {
       switch (element.type) {
@@ -61,6 +65,10 @@ function Board() {
         case TOOL_ITEMS.BRUSH:
           context.fillStyle = element.stroke;
           context.fill(element.path);
+          const brushPath = element.path
+            ? element.path
+            : new Path2D(getSvgPathFromStroke(getStroke(element.points)));
+          context.fill(brushPath);
           context.restore();
           break;
         case TOOL_ITEMS.TEXT:

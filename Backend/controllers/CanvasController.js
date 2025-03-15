@@ -51,6 +51,7 @@ async function updateCanvas(req, res, next) {
     const { canvasId } = req.params;
     const email = req.user.email;
     const { elements } = req.body;
+
     const canvasDoc = await canvas.updateCanvas(email, canvasId, elements);
     res.status(200).json(canvasDoc);
   } catch (err) {

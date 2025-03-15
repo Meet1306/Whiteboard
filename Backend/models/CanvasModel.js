@@ -13,17 +13,8 @@ const canvasSchema = new mongoose.Schema(
       ref: "user",
       required: true,
     },
-    elements: {
-      type: [
-        {
-          type: mongoose.Schema.Types.Mixed, //holds all elements presnet in canvas
-        },
-      ],
-    },
-    sharedWith: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
-      required: true,
-    },
+    elements: [{ type: mongoose.Schema.Types.Mixed }], //array of objects
+    shared: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
@@ -126,7 +117,9 @@ canvasSchema.statics.updateCanvas = async function (email, canvasId, elements) {
     if (!canvasDoc) {
       throw new Error("Canvas not found");
     }
-    canvasDoc.elements = elements;
+    // console.log(elements.elements);
+
+    canvasDoc.elements = elements.elements;
     await canvasDoc.save();
 
     return canvasDoc;

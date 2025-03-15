@@ -68,7 +68,7 @@ const CanvasPage = () => {
   }
 
   return (
-    <BoardProvider initialElements={canvas.elements || []}>
+    <BoardProvider initialCanvas={canvas}>
       <ToolboxProvider>
         <Toolbar />
         <Board />
