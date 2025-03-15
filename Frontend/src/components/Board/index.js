@@ -52,7 +52,6 @@ function Board() {
 
     const roughCanvas = rough.canvas(canvas);
     console.log(elements);
-    // 
 
     elements.forEach((element) => {
       switch (element.type) {
