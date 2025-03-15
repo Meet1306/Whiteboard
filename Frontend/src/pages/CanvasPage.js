@@ -45,7 +45,6 @@ const CanvasPage = () => {
       } catch (err) {
         setError(err.message || "An error occurred while loading the canvas");
         console.error("Fetch canvas error:", err);
-        // No auto logout here unless 401 (already handled above)
       }
     };
 
@@ -69,7 +68,7 @@ const CanvasPage = () => {
   }
 
   return (
-    <BoardProvider>
+    <BoardProvider initialElements={canvas.elements || []}>
       <ToolboxProvider>
         <Toolbar />
         <Board />

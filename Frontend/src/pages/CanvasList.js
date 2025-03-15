@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuthToken, removeAuthToken } from "../utils/auth";
+import { FiEdit3 } from "react-icons/fi";
 
 const CanvasList = () => {
   const [canvases, setCanvases] = useState([]);
   const [error, setError] = useState("");
-  const [newCanvasName, setNewCanvasName] = useState(""); // State for new canvas name
+  const [newCanvasName, setNewCanvasName] = useState("");
+  const [editingCanvasId, setEditingCanvasId] = useState(null);
+  const [editingCanvasName, setEditingCanvasName] = useState("");
   const navigate = useNavigate();
 
-  // Fetch Canvases
   useEffect(() => {
     const fetchCanvases = async () => {
       const token = getAuthToken();
@@ -37,7 +39,6 @@ const CanvasList = () => {
     fetchCanvases();
   }, [navigate]);
 
-  // Create a New Canvas
   const handleCreateCanvas = async () => {
     const token = getAuthToken();
     if (!token) return navigate("/login");
@@ -64,14 +65,13 @@ const CanvasList = () => {
       if (!response.ok)
         throw new Error(data.error || "Failed to create canvas");
 
-      setCanvases([...canvases, data]); // Add new canvas to the list
-      setNewCanvasName(""); // Reset input field
+      setCanvases([...canvases, data]);
+      setNewCanvasName("");
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Delete a Canvas
   const handleDeleteCanvas = async (canvasId) => {
     const token = getAuthToken();
     if (!token) return navigate("/login");
@@ -87,7 +87,50 @@ const CanvasList = () => {
 
       if (!response.ok) throw new Error("Failed to delete canvas");
 
-      setCanvases(canvases.filter((canvas) => canvas._id !== canvasId)); // Remove from UI
+      setCanvases(canvases.filter((canvas) => canvas._id !== canvasId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleEditCanvas = (canvasId, currentName) => {
+    setEditingCanvasId(canvasId);
+    setEditingCanvasName(currentName);
+  };
+
+  const handleUpdateCanvas = async (e, canvasId) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+
+    const token = getAuthToken();
+    if (!token) return navigate("/login");
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/canvas/update/canvasName/${canvasId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: editingCanvasName }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok)
+        throw new Error(data.error || "Failed to update canvas");
+
+      setCanvases((prevCanvases) =>
+        prevCanvases.map((canvas) =>
+          canvas._id === data._id ? { ...canvas, name: data.name } : canvas
+        )
+      );
+
+      setEditingCanvasId(null);
+      setEditingCanvasName("");
     } catch (err) {
       setError(err.message);
     }
@@ -99,7 +142,6 @@ const CanvasList = () => {
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      {/* Create Canvas Input */}
       <div className="flex mb-6 w-full max-w-lg">
         <input
           type="text"
@@ -116,7 +158,6 @@ const CanvasList = () => {
         </button>
       </div>
 
-      {/* Display Canvases */}
       {canvases.length === 0 ? (
         <p className="text-gray-500">No canvases available.</p>
       ) : (
@@ -127,13 +168,36 @@ const CanvasList = () => {
               className="bg-white p-6 rounded-lg shadow-lg flex flex-col justify-between min-h-[200px]"
             >
               <div>
-                <h3 className="text-2xl font-semibold text-gray-800">
-                  {canvas.name}
-                </h3>
+                {editingCanvasId === canvas._id ? (
+                  <input
+                    type="text"
+                    value={editingCanvasName}
+                    onChange={(e) => setEditingCanvasName(e.target.value)}
+                    onKeyDown={(e) => handleUpdateCanvas(e, canvas._id)}
+                    onBlur={() => {
+                      setEditingCanvasId(null);
+                      setEditingCanvasName("");
+                    }}
+                    autoFocus
+                    className="text-2xl font-semibold text-gray-800 border-b-2 border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-semibold text-gray-800">
+                      {canvas.name}
+                    </h3>
+                    <button
+                      onClick={() => handleEditCanvas(canvas._id, canvas.name)}
+                      className="ml-2 text-blue-500 hover:text-blue-700"
+                    >
+                      <FiEdit3 size={20} />
+                    </button>
+                  </div>
+                )}
+
                 <p className="text-gray-500 text-sm mt-2">
                   Created At: {new Date(canvas.createdAt).toLocaleString()}
                 </p>
-                {/* Display Owner Name */}
                 {canvas.owner && canvas.owner.name && (
                   <p className="text-gray-700 font-medium mt-1">
                     Owner: {canvas.owner.name}
@@ -159,7 +223,6 @@ const CanvasList = () => {
         </div>
       )}
 
-      {/* Logout Button */}
       <button
         className="mt-8 px-6 py-3 bg-red-500 text-white font-medium rounded shadow-md hover:bg-red-600 transition"
         onClick={() => {

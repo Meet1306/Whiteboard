@@ -46,4 +46,35 @@ async function loadCanvas(req, res, next) {
   }
 }
 
-module.exports = { getAllCanvas, createCanvas, deleteCanvas, loadCanvas };
+async function updateCanvas(req, res, next) {
+  try {
+    const { canvasId } = req.params;
+    const email = req.user.email;
+    const { elements } = req.body;
+    const canvasDoc = await canvas.updateCanvas(email, canvasId, elements);
+    res.status(200).json(canvasDoc);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+async function updateCanvasName(req, res, next) {
+  try {
+    const { canvasId } = req.params;
+    const email = req.user.email;
+    const { name } = req.body;
+    const canvasDoc = await canvas.updateCanvasName(email, canvasId, name);
+    res.status(200).json(canvasDoc);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = {
+  getAllCanvas,
+  createCanvas,
+  deleteCanvas,
+  loadCanvas,
+  updateCanvas,
+  updateCanvasName,
+};

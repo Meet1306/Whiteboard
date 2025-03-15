@@ -110,6 +110,54 @@ canvasSchema.statics.loadCanvas = async function (email, canvasId) {
   }
 };
 
+canvasSchema.statics.updateCanvas = async function (email, canvasId, elements) {
+  try {
+    const user = await User.findOne({ email }).select("_id");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const userId = user._id;
+
+    const canvasDoc = await this.findOne({
+      _id: canvasId,
+      $or: [{ owner: userId }, { sharedWith: userId }],
+    });
+
+    if (!canvasDoc) {
+      throw new Error("Canvas not found");
+    }
+    canvasDoc.elements = elements;
+    await canvasDoc.save();
+
+    return canvasDoc;
+  } catch (err) {
+    throw err;
+  }
+};
+
+canvasSchema.statics.updateCanvasName = async function (email, canvasId, name) {
+  try {
+    const user = await User.findOne({ email }).select("_id");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const userId = user._id;
+    const canvasDoc = await this.findOne({
+      _id: canvasId,
+      $or: [{ owner: userId }, { sharedWith: userId }],
+    });
+
+    if (!canvasDoc) {
+      throw new Error("Canvas not found");
+    }
+    canvasDoc.name = name;
+    await canvasDoc.save();
+    return { name: canvasDoc.name, _id: canvasDoc._id };
+  } catch (err) {
+    throw err;
+  }
+};
+
 const canvas = mongoose.model("canvas", canvasSchema);
 
 module.exports = canvas;
