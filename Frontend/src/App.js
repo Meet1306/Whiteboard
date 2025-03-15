@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/login";
+import Register from "./pages/Register";
 import CanvasList from "./pages/CanvasList";
 import CanvasPage from "./pages/CanvasPage";
 import { getAuthToken } from "./utils/auth";
@@ -18,7 +19,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-
+        <Route path="/register" element={<Register />} />{" "}
+        {/* ✅ Added Register Route */}
         <Route
           path="/canvases"
           element={
@@ -27,7 +29,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/canvas/:canvasId"
           element={
@@ -36,7 +37,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

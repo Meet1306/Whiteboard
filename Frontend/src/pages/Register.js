@@ -1,29 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { setAuthToken } from "../utils/auth";
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/user/login", {
+      const response = await fetch("http://localhost:5000/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Login failed");
+      if (!response.ok) throw new Error(data.error || "Registration failed");
 
-      setAuthToken(data.token);
-      navigate("/canvases");
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     }
@@ -32,11 +31,19 @@ const Login = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleRegister}
         className="bg-white p-6 rounded-lg shadow-md w-96"
       >
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl font-bold mb-4">Register</h2>
         {error && <p className="text-red-500 mb-2">{error}</p>}
+        <input
+          type="text"
+          placeholder="Name"
+          className="w-full p-2 border rounded mb-2"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
         <input
           type="email"
           placeholder="Email"
@@ -57,18 +64,18 @@ const Login = () => {
           type="submit"
           className="w-full bg-blue-500 text-white p-2 rounded mb-2"
         >
-          Login
+          Register
         </button>
         <button
           type="button"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/login")}
           className="w-full bg-gray-300 text-black p-2 rounded"
         >
-          Register
+          Back to Login
         </button>
       </form>
     </div>
   );
 };
 
-export default Login;
+export default Register;
