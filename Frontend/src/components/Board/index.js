@@ -129,7 +129,7 @@ function Board() {
     boardMouseUpHandler();
     const canvasId = window.location.pathname.split("/").pop();
     try {
-      await updateCanvas(canvasId, { elements });
+      await updateCanvas(canvasId, elements);
     } catch (err) {
       console.error("Failed to update canvas:", err);
     }

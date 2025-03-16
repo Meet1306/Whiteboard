@@ -71,6 +71,21 @@ async function updateCanvasName(req, res, next) {
   }
 }
 
+async function shareCanvas(req, res, next) {
+  try {
+    const { canvasId } = req.params;
+    const sharedWithEmail = req.body.email;
+    const canvasDoc = await canvas.shareCanvas(
+      req.user.email,
+      canvasId,
+      sharedWithEmail
+    );
+    res.status(200).json(canvasDoc); //only the email of the user is shared
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   getAllCanvas,
   createCanvas,
@@ -78,4 +93,5 @@ module.exports = {
   loadCanvas,
   updateCanvas,
   updateCanvasName,
+  shareCanvas,
 };

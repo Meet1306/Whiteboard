@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuthToken, removeAuthToken } from "../utils/auth";
 import { FiEdit3 } from "react-icons/fi";
+import { IoShareSocialOutline } from "react-icons/io5";
 
 const CanvasList = () => {
   const [canvases, setCanvases] = useState([]);
@@ -9,6 +10,9 @@ const CanvasList = () => {
   const [newCanvasName, setNewCanvasName] = useState("");
   const [editingCanvasId, setEditingCanvasId] = useState(null);
   const [editingCanvasName, setEditingCanvasName] = useState("");
+  const [sharingCanvasId, setSharingCanvasId] = useState(null);
+  const [shareEmail, setShareEmail] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -136,6 +140,45 @@ const CanvasList = () => {
     }
   };
 
+  const handleShareCanvas = async (canvasId) => {
+    const token = getAuthToken();
+    if (!token) return navigate("/login");
+
+    if (!shareEmail.trim()) {
+      setError("Email cannot be empty!");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/canvas/shareWith/${canvasId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ email: shareEmail }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || "Failed to share canvas");
+
+      setCanvases((prevCanvases) =>
+        prevCanvases.map((canvas) =>
+          canvas._id === canvasId ? { ...canvas, sharedWith: data } : canvas
+        )
+      );
+
+      setSharingCanvasId(null);
+      setShareEmail("");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
       <h2 className="text-4xl font-bold text-gray-700 mb-6">Your Canvases</h2>
@@ -165,7 +208,7 @@ const CanvasList = () => {
           {canvases.map((canvas) => (
             <div
               key={canvas._id}
-              className="bg-white p-6 rounded-lg shadow-lg flex flex-col justify-between min-h-[200px]"
+              className="bg-white p-6 rounded-lg shadow-lg flex flex-col justify-between min-h-[250px]"
             >
               <div>
                 {editingCanvasId === canvas._id ? (
@@ -198,19 +241,65 @@ const CanvasList = () => {
                 <p className="text-gray-500 text-sm mt-2">
                   Created At: {new Date(canvas.createdAt).toLocaleString()}
                 </p>
+
                 {canvas.owner && canvas.owner.name && (
                   <p className="text-gray-700 font-medium mt-1">
                     Owner: {canvas.owner.name}
                   </p>
                 )}
+
+                {canvas.sharedWith && canvas.sharedWith.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-600 font-medium">
+                      Shared With:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-gray-700">
+                      {canvas.sharedWith.map((email, idx) => (
+                        <li key={idx}>{email}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-end mt-4">
+
+              {sharingCanvasId === canvas._id && (
+                <div className="mt-4">
+                  <input
+                    type="email"
+                    placeholder="Enter user email"
+                    className="w-full p-2 border border-gray-300 rounded mb-2 focus:ring-2 focus:ring-blue-300"
+                    value={shareEmail}
+                    onChange={(e) => setShareEmail(e.target.value)}
+                  />
+                  <button
+                    className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-600 transition"
+                    onClick={() => handleShareCanvas(canvas._id)}
+                  >
+                    Share
+                  </button>
+                </div>
+              )}
+
+              <div className="flex justify-end mt-4 space-x-2">
                 <button
-                  className="mr-3 px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition"
+                  className="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition"
                   onClick={() => navigate(`/canvas/${canvas._id}`)}
                 >
                   Open
                 </button>
+
+                <button
+                  className="px-3 py-1 bg-yellow-500 text-white text-sm font-medium rounded hover:bg-yellow-600 transition flex items-center"
+                  onClick={() =>
+                    setSharingCanvasId(
+                      sharingCanvasId === canvas._id ? null : canvas._id
+                    )
+                  }
+                >
+                  <IoShareSocialOutline size={16} className="mr-1" />
+                  Share With
+                </button>
+
                 <button
                   className="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition"
                   onClick={() => handleDeleteCanvas(canvas._id)}
