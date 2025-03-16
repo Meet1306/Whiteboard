@@ -8,6 +8,7 @@ const {
   updateCanvas,
   updateCanvasName,
   shareCanvas,
+  unshareCanvas,
 } = require("../controllers/CanvasController");
 
 const authMiddleware = require("../Middlewares/Auth");
@@ -23,5 +24,6 @@ canvasRouter.patch(
   updateCanvasName
 );
 canvasRouter.put("/shareWith/:canvasId", authMiddleware, shareCanvas);
+canvasRouter.put("/UnshareWith/:canvasId", authMiddleware, unshareCanvas);
 
 module.exports = canvasRouter;

@@ -86,6 +86,26 @@ async function shareCanvas(req, res, next) {
   }
 }
 
+async function unshareCanvas(req, res, next) {
+  try {
+    const { canvasId } = req.params;
+    const sharedWithEmail = req.body.email;
+    // console.log(sharedWithEmail);
+
+    const canvasDoc = await canvas.unshareCanvas(
+      req.user.email,
+      canvasId,
+      sharedWithEmail
+    );
+    // console.log(canvasDoc);
+    
+    res.status(200).json(canvasDoc.sharedWith); //only the email of the user is shared
+  } catch (err) {
+
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   getAllCanvas,
   createCanvas,
@@ -94,4 +114,6 @@ module.exports = {
   updateCanvas,
   updateCanvasName,
   shareCanvas,
+  unshareCanvas,
+  unshareCanvas,
 };

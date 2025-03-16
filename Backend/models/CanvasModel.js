@@ -167,6 +167,10 @@ canvasSchema.statics.shareCanvas = async function (
     if (!sharedWithUser) {
       throw new Error("User with whom you want to share the canvas not found");
     }
+
+    if (email == sharedWithEmail) {
+      throw new Error("You can't share the canvas with yourself");
+    }
     const sharedWithUserId = sharedWithUser._id;
 
     const canvasDoc = await this.findOne({
@@ -185,6 +189,50 @@ canvasSchema.statics.shareCanvas = async function (
     await canvasDoc.save();
     return { sharedWith: canvasDoc.sharedWith };
   } catch (err) {
+    throw err;
+  }
+};
+
+//make a static method for unsharing the canvas
+canvasSchema.statics.unshareCanvas = async function (
+  email,
+  canvasId,
+  sharedWithEmail
+) {
+  try {
+    const user = await User.findOne({ email }).select("_id");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const userId = user._id;
+
+    const sharedWithUser = await User.findOne({
+      email: sharedWithEmail,
+    }).select("_id");
+    if (!sharedWithUser) {
+      throw new Error(
+        "User with whom you want to unshare the canvas not found"
+      );
+    }
+
+    const canvasDoc = await this.findOne({
+      _id: canvasId,
+      owner: userId,
+    });
+    if (!canvasDoc) {
+      throw new Error("Canvas not found");
+    }
+    if (!canvasDoc.sharedWith.includes(sharedWithEmail)) {
+      throw new Error("Canvas not shared with this user");
+    }
+    canvasDoc.sharedWith = canvasDoc.sharedWith.filter(
+      (email) => email != sharedWithEmail
+    );
+    await canvasDoc.save();
+    return { sharedWith: canvasDoc.sharedWith };
+  } catch (err) {
+    console.log(err);
+
     throw err;
   }
 };
