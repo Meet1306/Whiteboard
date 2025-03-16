@@ -7,6 +7,7 @@ import { updateCanvas } from "../../utils/api";
 import classes from "./index.module.css";
 import { getSvgPathFromStroke } from "../../utils/element";
 import getStroke from "perfect-freehand";
+import socket from "../../utils/socket";
 
 function Board() {
   const canvasRef = useRef();
@@ -122,7 +123,9 @@ function Board() {
   };
 
   const handleMouseMove = (event) => {
+    // const canvasId = window.location.pathname.split("/").pop();
     boardMouseMoveHandler(event);
+    // socket.emit("canvas-data", { canvasId, elements });
   };
 
   const handleMouseUp = async () => {
@@ -130,6 +133,7 @@ function Board() {
     const canvasId = window.location.pathname.split("/").pop();
     try {
       await updateCanvas(canvasId, elements);
+      // socket.emit("canvas-data", { canvasId, elements });
     } catch (err) {
       console.error("Failed to update canvas:", err);
     }
