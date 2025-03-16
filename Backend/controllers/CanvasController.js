@@ -75,6 +75,7 @@ async function shareCanvas(req, res, next) {
   try {
     const { canvasId } = req.params;
     const sharedWithEmail = req.body.email;
+
     const canvasDoc = await canvas.shareCanvas(
       req.user.email,
       canvasId,
@@ -98,10 +99,9 @@ async function unshareCanvas(req, res, next) {
       sharedWithEmail
     );
     // console.log(canvasDoc);
-    
+
     res.status(200).json(canvasDoc.sharedWith); //only the email of the user is shared
   } catch (err) {
-
     res.status(500).json({ error: err.message });
   }
 }

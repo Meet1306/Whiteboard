@@ -170,11 +170,14 @@ const CanvasList = () => {
 
       setCanvases((prevCanvases) =>
         prevCanvases.map((canvas) =>
-          canvas._id === canvasId ? { ...canvas, sharedWith: data } : canvas
+          canvas._id === canvasId
+            ? { ...canvas, sharedWith: data.sharedWith }
+            : canvas
         )
       );
+      setShareEmail("");
 
-      setSharingCanvasId(null);
+      // setSharingCanvasId(null);
       setShareEmail("");
     } catch (err) {
       setError(err.message);
@@ -297,7 +300,9 @@ const CanvasList = () => {
                           <span className="text-sm text-gray-700">{email}</span>
                           <button
                             className="text-red-500 hover:text-red-700"
-                            onClick={() => setConfirmUnshare({ canvasId: canvas._id, email })}
+                            onClick={() =>
+                              setConfirmUnshare({ canvasId: canvas._id, email })
+                            }
                           >
                             <IoMdClose size={16} />
                           </button>
@@ -372,7 +377,10 @@ const CanvasList = () => {
               <button
                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
                 onClick={() =>
-                  handleUnshareCanvas(confirmUnshare.canvasId, confirmUnshare.email)
+                  handleUnshareCanvas(
+                    confirmUnshare.canvasId,
+                    confirmUnshare.email
+                  )
                 }
               >
                 Yes, Unshare

@@ -30,7 +30,7 @@ canvasSchema.statics.getAllCanvas = async function (email) {
     const userId = new mongoose.Types.ObjectId(user._id); //user._id can be a string and we need to convert it to ObjectId
 
     const allCanvas = await this.find({
-      $or: [{ owner: userId }, { sharedWith: userId }],
+      $or: [{ owner: userId }, { sharedWith: { $in: [email] } }],
     })
       .select("name owner sharedWith createdAt updatedAt")
       .populate("owner", "name email");
@@ -90,7 +90,7 @@ canvasSchema.statics.loadCanvas = async function (email, canvasId) {
     const userId = user._id;
     const canvasDoc = await this.findOne({
       _id: canvasId,
-      $or: [{ owner: userId }, { sharedWith: userId }],
+      $or: [{ owner: userId }, { sharedWith: { $in: [email] } }],
     });
     if (!canvasDoc) {
       throw new Error("Canvas not found");
@@ -111,7 +111,7 @@ canvasSchema.statics.updateCanvas = async function (email, canvasId, elements) {
 
     const canvasDoc = await this.findOne({
       _id: canvasId,
-      $or: [{ owner: userId }, { sharedWith: userId }],
+      $or: [{ owner: userId }, { sharedWith: { $in: [email] } }],
     });
 
     if (!canvasDoc) {
@@ -135,7 +135,7 @@ canvasSchema.statics.updateCanvasName = async function (email, canvasId, name) {
     const userId = user._id;
     const canvasDoc = await this.findOne({
       _id: canvasId,
-      $or: [{ owner: userId }, { sharedWith: userId }],
+      $or: [{ owner: userId }, { sharedWith: { $in: [email] } }],
     });
 
     if (!canvasDoc) {
@@ -171,7 +171,6 @@ canvasSchema.statics.shareCanvas = async function (
     if (email == sharedWithEmail) {
       throw new Error("You can't share the canvas with yourself");
     }
-    const sharedWithUserId = sharedWithUser._id;
 
     const canvasDoc = await this.findOne({
       _id: canvasId,
@@ -231,8 +230,6 @@ canvasSchema.statics.unshareCanvas = async function (
     await canvasDoc.save();
     return { sharedWith: canvasDoc.sharedWith };
   } catch (err) {
-    console.log(err);
-
     throw err;
   }
 };
