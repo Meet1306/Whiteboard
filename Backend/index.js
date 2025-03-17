@@ -45,7 +45,7 @@ const canvasCache = new Map();
 const canvasCommentsCache = new Map();
 
 io.on("connection", (socket) => {
-  console.log("A user connected", socket.id);
+  // console.log("A user connected", socket.id);
 
   socket.on("join-canvas", async (canvasId) => {
     socket.join(canvasId);
@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userEmail = decoded.email;
 
-      console.log(userEmail, "added comment", content);
+      // console.log(userEmail, "added comment", content);
 
       const comment = await Comment.createComment(canvasId, userEmail, content);
 
@@ -108,5 +108,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(port, () => {
-  console.log(`Server runnung on port http://localhost:${port}`);
+  console.log(`Server runnung on port ${port}`);
 });

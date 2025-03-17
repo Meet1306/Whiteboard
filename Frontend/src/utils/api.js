@@ -1,6 +1,6 @@
 import { getAuthToken } from "./auth";
 
-const API_BASE_URL = "http://localhost:5000/api/canvas/update";
+const API_BASE_URL = `${process.env.REACT_APP_BACKEND_URL}/api/canvas/update`;
 
 export const updateCanvas = async (canvasId, elements) => {
   const token = getAuthToken();

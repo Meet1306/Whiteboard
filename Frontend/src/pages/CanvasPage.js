@@ -23,7 +23,7 @@ const CanvasPage = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/canvas/load/${canvasId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/canvas/load/${canvasId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

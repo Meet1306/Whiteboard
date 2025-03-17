@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setAuthToken } from "../utils/auth";
 
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +14,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/user/login", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

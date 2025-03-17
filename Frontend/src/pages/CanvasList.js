@@ -5,6 +5,7 @@ import { FiEdit3 } from "react-icons/fi";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 
+
 const CanvasList = () => {
   const [canvases, setCanvases] = useState([]);
   const [error, setError] = useState("");
@@ -24,7 +25,7 @@ const CanvasList = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/canvas/getCanvas",
+          `${process.env.REACT_APP_BACKEND_URL}/api/canvas/getCanvas`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -56,7 +57,7 @@ const CanvasList = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/canvas/createCanvas",
+        `${process.env.REACT_APP_BACKEND_URL}/api/canvas/createCanvas`,
         {
           method: "POST",
           headers: {
@@ -84,7 +85,7 @@ const CanvasList = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/canvas/deleteCanvas/${canvasId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/canvas/deleteCanvas/${canvasId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -113,7 +114,7 @@ const CanvasList = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/canvas/update/canvasName/${canvasId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/canvas/update/canvasName/${canvasId}`,
         {
           method: "PATCH",
           headers: {
@@ -153,7 +154,7 @@ const CanvasList = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/canvas/shareWith/${canvasId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/canvas/shareWith/${canvasId}`,
         {
           method: "PUT",
           headers: {
@@ -190,7 +191,7 @@ const CanvasList = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/canvas/UnshareWith/${canvasId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/canvas/UnshareWith/${canvasId}`,
         {
           method: "PUT",
           headers: {

@@ -158,8 +158,8 @@ function Board() {
   };
 
   const handleMouseMove = (event) => {
-    const canvasId = window.location.pathname.split("/").pop();
     boardMouseMoveHandler(event);
+    const canvasId = window.location.pathname.split("/").pop();
     socket.emit("update-canvas", canvasId, elements);
   };
 
