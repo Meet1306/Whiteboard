@@ -46,6 +46,15 @@ const canvasCommentsCache = new Map();
 
 io.on("connection", (socket) => {
   // console.log("A user connected", socket.id);
+  try {
+    const token = socket.handshake.auth?.token;
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      userEmail = decoded.email;
+    }
+  } catch (error) {
+    console.log("JWT Error:", error.message);
+  }
 
   socket.on("join-canvas", async (canvasId) => {
     socket.join(canvasId);
@@ -74,13 +83,6 @@ io.on("connection", (socket) => {
 
   socket.on("add-comment", async (canvasId, content) => {
     try {
-      const token = socket.handshake.auth.token;
-      if (!token) throw new Error("No token provided");
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const userEmail = decoded.email;
-
-      // console.log(userEmail, "added comment", content);
 
       const comment = await Comment.createComment(canvasId, userEmail, content);
 
