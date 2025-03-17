@@ -135,6 +135,8 @@ const boardReducer = (state, action) => {
         index: state.index + 1,
       };
     }
+    case BOARD_ACTIONS.SET_ELEMENTS:
+      return { ...state, elements: action.payload.elements };
     default:
       return state;
   }
@@ -152,6 +154,13 @@ const BoardProvider = ({ children, initialCanvas }) => {
     boardReducer,
     initialBoardState
   );
+
+  const setElements = useCallback((newElements) => {
+    dispatchBoardAction({
+      type: BOARD_ACTIONS.SET_ELEMENTS,
+      payload: { elements: newElements },
+    });
+  }, []);
 
   const changeToolHandler = (tool) => {
     dispatchBoardAction({
@@ -247,6 +256,7 @@ const BoardProvider = ({ children, initialCanvas }) => {
   const boardContextValue = {
     activeToolItem: boardState.activeToolItem,
     elements: boardState.elements,
+    setElements,
     toolActionType: boardState.toolActionType,
     changeToolHandler,
     boardMouseDownHandler,

@@ -39,23 +39,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/user", userRouter);
 app.use("/api/canvas", canvasRouter);
 
-// io.on("connection", (socket) => {
-//   console.log("A user connected", socket.id);
+io.on("connection", (socket) => {
+  console.log("A user connected", socket.id);
 
-//   socket.on("join-canvas", async (canvasId) => {
-//     const canvasDoc = await Canvas.findById(canvasId);
-//     socket.join(canvasId);
-//   });
+  socket.on("join-canvas", async (canvasId) => {
+    const canvasDoc = await Canvas.findById(canvasId);
+    socket.join(canvasId);
+  });
 
-//   socket.on("update-canvas", async (canvasId, elements) => {
-//     const canvasDoc = await Canvas.findById(canvasId);
-//     socket.to(canvasId).emit("canvas-data", elements);
-//   });
+  socket.on("update-canvas", async (canvasId, elements) => {
+    const canvasDoc = await Canvas.findById(canvasId);
+    console.log(socket.id, "updated canvas", canvasId);
+    
+    socket.to(canvasId).emit("canvas-data", elements);
+  });
 
-//   socket.on("disconnect", () => {
-//     console.log("A user disconnected", socket.id);
-//   });
-// });
+  socket.on("disconnect", () => {
+    console.log("A user disconnected", socket.id);
+  });
+});
 
 server.listen(port, () => {
   console.log(`Server runnung on port http://localhost:${port}`);

@@ -14,6 +14,7 @@ function Board() {
   const textAreaRef = useRef();
   const {
     elements,
+    setElements,
     toolActionType,
     boardMouseDownHandler,
     boardMouseMoveHandler,
@@ -23,6 +24,22 @@ function Board() {
     redo,
   } = useContext(boardContext);
   const { toolboxState } = useContext(toolboxContext);
+
+  useEffect(() => {
+    const canvasId = window.location.pathname.split("/").pop();
+
+    // 🔹 Join the canvas room when component mounts
+    socket.emit("join-canvas", canvasId);
+
+    // 🔹 Listen for canvas updates from the server
+    socket.on("canvas-data", (updatedElements) => {
+      setElements(updatedElements); // Update the state with received elements
+    });
+
+    return () => {
+      socket.off("canvas-data"); // Cleanup socket listener on unmount
+    };
+  }, [setElements]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -123,9 +140,9 @@ function Board() {
   };
 
   const handleMouseMove = (event) => {
-    // const canvasId = window.location.pathname.split("/").pop();
+    const canvasId = window.location.pathname.split("/").pop();
     boardMouseMoveHandler(event);
-    // socket.emit("canvas-data", { canvasId, elements });
+    socket.emit("update-canvas", canvasId, elements);
   };
 
   const handleMouseUp = async () => {
@@ -133,7 +150,7 @@ function Board() {
     const canvasId = window.location.pathname.split("/").pop();
     try {
       await updateCanvas(canvasId, elements);
-      // socket.emit("canvas-data", { canvasId, elements });
+      socket.emit("update-canvas", canvasId, elements);
     } catch (err) {
       console.error("Failed to update canvas:", err);
     }
