@@ -28,10 +28,10 @@ function Board() {
   useEffect(() => {
     const canvasId = window.location.pathname.split("/").pop();
 
-    // 🔹 Join the canvas room when component mounts
     socket.emit("join-canvas", canvasId);
 
-    // 🔹 Listen for canvas updates from the server
+    socket.emit("load-canvas", canvasId);
+    
     socket.on("canvas-data", (updatedElements) => {
       setElements(updatedElements); // Update the state with received elements
     });

@@ -47,10 +47,16 @@ io.on("connection", (socket) => {
     socket.join(canvasId);
   });
 
+  socket.on("load-canvas", async (canvasId) => {
+    const canvasDoc = await Canvas.findById(canvasId);
+    const elements = canvasDoc.elements;
+    socket.emit("canvas-data", elements);
+  });
+
   socket.on("update-canvas", async (canvasId, elements) => {
     const canvasDoc = await Canvas.findById(canvasId);
     console.log(socket.id, "updated canvas", canvasId);
-    
+
     socket.to(canvasId).emit("canvas-data", elements);
   });
 
