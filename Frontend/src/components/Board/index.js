@@ -1,4 +1,10 @@
-import { useContext, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import rough from "roughjs";
 import boardContext from "../../store/board-context";
 import { TOOL_ACTION_TYPES, TOOL_ITEMS } from "../../constants";
@@ -8,10 +14,17 @@ import classes from "./index.module.css";
 import { getSvgPathFromStroke } from "../../utils/element";
 import getStroke from "perfect-freehand";
 import socket from "../../utils/socket";
+import { FaComment, FaPaperPlane } from "react-icons/fa"; // Import icons
 
 function Board() {
   const canvasRef = useRef();
   const textAreaRef = useRef();
+  const commentBoxRef = useRef();
+  const commentListRef = useRef();
+  const [showCommentBox, setShowCommentBox] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+
   const {
     elements,
     setElements,
@@ -31,13 +44,19 @@ function Board() {
     socket.emit("join-canvas", canvasId);
 
     socket.emit("load-canvas", canvasId);
+    socket.emit("load-comments", canvasId); // Load comments when the canvas loads
 
     socket.on("canvas-data", (updatedElements) => {
-      setElements(updatedElements); // Update the state with received elements
+      setElements(updatedElements);
+    });
+
+    socket.on("comments-data", (loadedComments) => {
+      setComments(loadedComments); // Update comments state
     });
 
     return () => {
-      socket.off("canvas-data"); // Cleanup socket listener on unmount
+      socket.off("canvas-data");
+      socket.off("comments-data");
     };
   }, [setElements]);
 
@@ -114,7 +133,6 @@ function Board() {
 
     context.restore();
 
-    // Double requestAnimationFrame to force a redraw
     requestAnimationFrame(() => {
       canvas.style.display = "none";
       void canvas.offsetHeight;
@@ -156,6 +174,18 @@ function Board() {
     }
   };
 
+  const handleAddComment = () => {
+    const canvasId = window.location.pathname.split("/").pop();
+    if (newComment.trim()) {
+      socket.emit("add-comment", canvasId, newComment);
+      setNewComment("");
+      // Scroll to the bottom of the comment list after adding a new comment
+      if (commentListRef.current) {
+        commentListRef.current.scrollTop = commentListRef.current.scrollHeight;
+      }
+    }
+  };
+
   return (
     <>
       {toolActionType === TOOL_ACTION_TYPES.WRITING && (
@@ -172,6 +202,61 @@ function Board() {
           onBlur={(event) => textAreaBlurHandler(event.target.value)}
         />
       )}
+
+      {/* Comment Icon */}
+      <div
+        className={classes.commentIcon}
+        onClick={() => setShowCommentBox(!showCommentBox)}
+      >
+        <FaComment size={24} />
+      </div>
+
+      {/* Comment Box */}
+      {showCommentBox && (
+        <div className={classes.commentBox} ref={commentBoxRef}>
+          <div className={classes.commentHeader}>
+            <span>Comments</span>
+            <button
+              className={classes.closeButton}
+              onClick={() => setShowCommentBox(false)}
+            >
+              &times;
+            </button>
+          </div>
+          <div className={classes.commentList} ref={commentListRef}>
+            {comments.map((comment, index) => (
+              <div key={index} className={classes.commentItem}>
+                <span className={classes.commentUser}>{comment.userEmail}</span>
+                <span className={classes.commentTime}>
+                  {new Date(comment.createdAt).toLocaleTimeString()}
+                </span>
+                <p className={classes.commentContent}>{comment.content}</p>
+              </div>
+            ))}
+          </div>
+          <div className={classes.commentInputContainer}>
+            <textarea
+              className={classes.commentInput}
+              placeholder="Add a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAddComment();
+                }
+              }}
+            />
+            <button
+              className={classes.commentButton}
+              onClick={handleAddComment}
+            >
+              <FaPaperPlane size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         id="canvas"

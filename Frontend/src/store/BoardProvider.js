@@ -11,12 +11,11 @@ import getStroke from "perfect-freehand";
 
 const boardReducer = (state, action) => {
   switch (action.type) {
-    case BOARD_ACTIONS.CHANGE_TOOL: {
+    case BOARD_ACTIONS.CHANGE_TOOL:
       return {
         ...state,
         activeToolItem: action.payload.tool,
       };
-    }
     case BOARD_ACTIONS.CHANGE_ACTION_TYPE:
       return {
         ...state,

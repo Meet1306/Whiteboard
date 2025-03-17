@@ -89,11 +89,17 @@ export const createElement = (
 
 export const isPointNearElement = (element, pointX, pointY) => {
   const { x1, y1, x2, y2, type } = element;
-  const context = document.getElementById("canvas").getContext("2d");
+
+  const canvas = document.getElementById("canvas");
+  if (!canvas) return false;
+  const context = canvas.getContext("2d");
+  if (!context) return false;
+
   switch (type) {
     case TOOL_ITEMS.LINE:
     case TOOL_ITEMS.ARROW:
       return isPointCloseToLine(x1, y1, x2, y2, pointX, pointY);
+
     case TOOL_ITEMS.RECTANGLE:
     case TOOL_ITEMS.CIRCLE:
       return (
@@ -102,13 +108,26 @@ export const isPointNearElement = (element, pointX, pointY) => {
         isPointCloseToLine(x2, y2, x1, y2, pointX, pointY) ||
         isPointCloseToLine(x1, y2, x1, y1, pointX, pointY)
       );
+
     case TOOL_ITEMS.BRUSH:
-      if (!element.path) return false;
-      return context.isPointInPath(element.path, pointX, pointY);
+      if (!element.points || element.points.length === 0) return false;
+
+      const path2D = new Path2D();
+
+      element.points.forEach((point, index) => {
+        if (index === 0) {
+          path2D.moveTo(point.x, point.y);
+        } else {
+          path2D.lineTo(point.x, point.y);
+        }
+      });
+
+      return context.isPointInPath(path2D, pointX, pointY, "nonzero");
+
     case TOOL_ITEMS.TEXT:
       context.font = `${element.size}px Caveat`;
       const textWidth = context.measureText(element.text).width;
-      const textHeight = parseInt(element.size);
+      const textHeight = parseInt(element.size, 10);
       return (
         isPointCloseToLine(x1, y1, x1 + textWidth, y1, pointX, pointY) ||
         isPointCloseToLine(
@@ -129,6 +148,7 @@ export const isPointNearElement = (element, pointX, pointY) => {
         ) ||
         isPointCloseToLine(x1, y1 + textHeight, x1, y1, pointX, pointY)
       );
+
     default:
       throw new Error("Type not recognized");
   }
