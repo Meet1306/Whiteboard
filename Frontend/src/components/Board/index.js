@@ -31,7 +31,7 @@ function Board() {
     socket.emit("join-canvas", canvasId);
 
     socket.emit("load-canvas", canvasId);
-    
+
     socket.on("canvas-data", (updatedElements) => {
       setElements(updatedElements); // Update the state with received elements
     });
